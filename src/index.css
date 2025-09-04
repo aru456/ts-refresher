@@ -1,0 +1,49 @@
+root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card-bg: #f8f9fa;
+  --border: #e9ecef;
+}
+
+/* Dark theme styles */
+.dark {
+  --background: #0f0f0f;
+  --foreground: #ffffff;
+  --card-bg: #1a1a1a;
+  --border: #404040;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* Example component styles */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+button {
+  background: var(--card-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
