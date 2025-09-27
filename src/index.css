@@ -10,7 +10,7 @@ root {
   --background: #0f0f0f;
   --foreground: #ffffff;
   --card-bg: #1a1a1a;
-  --border: #404040;
+  --border: #d27777;
 }
 
 * {
@@ -28,22 +28,4 @@ body {
 #root {
   min-height: 100vh;
   padding: 2rem;
-}
-
-/* Example component styles */
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-button {
-  background: var(--card-bg);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
 }
