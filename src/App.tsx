@@ -1,122 +1,75 @@
-import { useEffect, useState } from "react";
-import {
-  createUser,
-  deleteUser,
-  getUsers,
-  type User,
-} from "./services/userService";
-import axios from "axios";
-import {
-  Container,
-  Row,
-  Col,
-  Table,
-  Button,
-  Form,
-  InputGroup,
-  Alert,
-} from "react-bootstrap";
+import { useState } from "react";
+import "./App.css";
+import MovieCard from "./components/MovieCard";
+import type { Movie } from "./types/Movie";
 
-function App() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
+const API_URL = "http://www.omdbapi.com/?apikey=72389c5f";
 
-  useEffect(() => {
-    getUsers().then(setUsers).catch(() => setError("Failed to fetch users"));
-  }, []);
+const App = () => {
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState<boolean>(false); // Add loading state
 
-  const handleAddUser = async () => {
-    if (!name) return;
-    try {
-      const newUser = await createUser({ name });
-      setUsers([...users, newUser]);
-      setName("");
-    } catch {
-      setError("Failed to add user");
+  const searchMovies = async (title: string) => {
+    if (!title) {
+      setMovies([]);
+      return;
     }
-  };
-
-  const handleDeleteUser = async (id: number | undefined) => {
-    if (id === undefined) return;
+    setLoading(true); // Set loading to true before API call
     try {
-      await deleteUser(id);
-      setUsers(users.filter((user) => user.id !== id));
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        setUsers(users.filter((user) => user.id !== id));
-      } else {
-        setError("Failed to delete user");
+      const response = await fetch(`${API_URL}&s=${title}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const data = await response.json();
+      if (data.Response === "False") {
+        throw new Error(data.Error || "No movies found");
+      }
+      setMovies(Array.isArray(data.Search) ? data.Search : []);
+    } catch (error: any) {
+      console.error("Error fetching movies:", error.message);
+      setMovies([]);
+    } finally {
+      setTimeout(() => setLoading(false), 300); // Add a minimum delay of 300ms before hiding the loading state
     }
   };
 
   return (
-    <Container>
-      <Row>
-        <Col>
-          <h2>User Management</h2>
-        </Col>
-      </Row>
+    <>
+      <div className="app">
+        <h1>Movie Land</h1>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-
-      {/* Add User Form */}
-      <Row>
-        <Col md={6}>
-          <InputGroup>
-            <Form.Control
-              type="text"
-              value={name}
-              placeholder="Enter full name"
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Button variant="primary" onClick={handleAddUser}>
-              Add User
-            </Button>
-          </InputGroup>
-        </Col>
-      </Row>
-
-      {/* Users Table */}
-      <Row>
-        <Col md={6}>
-          <Table striped bordered hover responsive >
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length > 0 ? (
-                users.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.name}</td>
-                    <td>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteUser(u.id)}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3}>No users found</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </Col>
-      </Row>
-    </Container>
+        <div className="search">
+          <input
+            placeholder="Search for movies"
+            value={searchInput}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              searchMovies(e.target.value);
+            }}
+          />
+          <img src="https://img.icons8.com/?size=100&id=e4NkZ7kWAD7f&format=png&color=FFBD00" />
+        </div>
+        {searchInput?.length > 0 ? (
+          loading ? (
+            <h3 style={{ color: "white" }}>Loading...</h3>
+          ) : movies?.length > 0 ? (
+            <div className="container">
+              {movies.map((movie) => (
+                <MovieCard key={movie.imdbID} movie={movie}></MovieCard>
+              ))}
+            </div>
+          ) : (
+            <h3 style={{ color: "white" }}>
+              No movies found with "{searchInput}"
+            </h3>
+          )
+        ) : (
+          <h1>Search a title above</h1>
+        )}
+      </div>
+    </>
   );
-}
+};
 
 export default App;
